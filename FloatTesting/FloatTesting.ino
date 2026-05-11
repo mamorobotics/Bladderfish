@@ -207,13 +207,13 @@ void pump(int ms, bool in) {
   digitalWrite(ENABLE_MOTOR, HIGH);
 
   if (in) {
-    digitalWrite(MOTORA1, HIGH);
-    digitalWrite(MOTORA2, LOW);
+    digitalWrite(MOTORA1, LOW);
+    digitalWrite(MOTORA2, HIGH);
   }
 
   else {
-    digitalWrite(MOTORA1, LOW);
-    digitalWrite(MOTORA2, HIGH);
+    digitalWrite(MOTORA1, HIGH);
+    digitalWrite(MOTORA2, LOW);
   }
 
   delay(ms);
