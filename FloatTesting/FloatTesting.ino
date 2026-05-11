@@ -241,20 +241,24 @@ void pump(int ms, bool in) {
 void sendData() {
   for (int i = 0; i < packetCounter; i++) {
     
-    char msg[32] = {0};
-    char packetStuff[3][8];
+    // char msg[32] = {0};
+    // char packetStuff[3][8];
 
 
-    strcat(msg, TEAM_ID);
-    strcat(msg, "_");
-    itoa(packetTime[i][0], packetStuff[0], 10);
-    itoa(packetTime[i][1], packetStuff[1], 10);
-    itoa(packetDepth[i], packetStuff[2], 10);
-    strcat(msg, packetStuff[0]);
-    strcat(msg, ":");
-    strcat(msg, packetStuff[1]);
-    strcat(msg, "_");
-    strcat(msg, packetStuff[2]);
+    // strcat(msg, TEAM_ID);
+    // strcat(msg, "_");
+    // itoa(packetTime[i][0], packetStuff[0], 10);
+    // itoa(packetTime[i][1], packetStuff[1], 10);
+    // itoa(packetDepth[i], packetStuff[2], 10);
+    // strcat(msg, packetStuff[0]);
+    // strcat(msg, ":");
+    // strcat(msg, packetStuff[1]);
+    // strcat(msg, "_");
+    // strcat(msg, packetStuff[2]);
+
+    char msg[64];
+    snprintf(msg, sizeof(msg), "%s_%d:%d_%d",
+         TEAM_ID, packetTime[i][0], packetTime[i][1], packetDepth[i]);
 
     Serial.println(msg);
 
