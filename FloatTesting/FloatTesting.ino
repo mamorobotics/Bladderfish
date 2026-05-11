@@ -52,6 +52,7 @@ void setup() {
 
  
   setupRadio();
+  Serial.println("Radio setup!");
 
   // Motor:
 
@@ -61,6 +62,8 @@ void setup() {
 
   digitalWrite(ENABLE_MOTOR, LOW);
 
+  Serial.println("Motor Setup");
+
 
   // Clock:
 
@@ -69,6 +72,8 @@ void setup() {
   rtc.setHours(0);
   rtc.setMinutes(0);
   rtc.setSeconds(0);
+
+  Serial.println("Clock Setup");
 
   // Pressure sensor: 
 
@@ -172,20 +177,25 @@ void savePacket() {
 
 void verticalProfile() {
   // fill the bladder
+  Serial.println("Vertical Profile Start");
 
   pump(5000, true);
   savePacket();
   pump(5000, true);
   savePacket();
 
-  // wait 7 seconds
+  
+
   delay(5000);
   savePacket();
 
   // neutral
 
+  
+  Serial.println("Neutral");
   pump(5000, false);
   savePacket();
+  
 
   // wait 10 seconds
 
@@ -195,6 +205,7 @@ void verticalProfile() {
   savePacket();
 
   // empty the bladder
+  Serial.println("Float");
   pump(5000, false);
   savePacket();
 
