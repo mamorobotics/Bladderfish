@@ -47,6 +47,8 @@ void setup() {
   // put your setup code here, to run once:
 
   Serial.begin(9600);
+  while (!Serial) { }  // if using native USB boards
+  Serial.println("BOOT");
 
   // Radio:
 
@@ -140,7 +142,7 @@ void loop() {
   if (state == 2) {
     Serial.println("Sending data");
     sendData();
-    state++;
+    state = 0;
   }
 }
 
@@ -175,6 +177,7 @@ void savePacket() {
   packetTime[packetCounter][0] = rtc.getMinutes();
   packetTime[packetCounter][1] = rtc.getSeconds();
   packetDepth[packetCounter] = readPressure();
+  packetCounter++;
 }
 
 void verticalProfile() {
