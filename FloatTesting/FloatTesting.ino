@@ -260,7 +260,7 @@ void sendData() {
 
     rf95.send((uint8_t *)msg, strlen(msg));
     rf95.waitPacketSent();
-    Serial.println("Sent packet")
+    Serial.println("Sent packet");
     delay(300);
   }
 
