@@ -135,8 +135,10 @@ void loop() {
   if (state == 1) {
     verticalProfile();
     state++;
+    Serial.println("Profile Done");
   }
   if (state == 2) {
+    Serial.println("Sending data");
     sendData();
     state++;
   }

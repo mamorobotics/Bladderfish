@@ -53,7 +53,7 @@ void loop() {
 
 
   if (Serial.available() > 0) {
-    String msg = Serial.readStringUntil('\n');
+    String msg = Serial.readString();
     const char* data = msg.c_str();                 // char*
     uint8_t dataLen = (uint8_t)msg.length();        // uint8_t
 
