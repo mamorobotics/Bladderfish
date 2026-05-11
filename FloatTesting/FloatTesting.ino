@@ -31,7 +31,7 @@ char TEAM_ID[7] = "TN9999";
 
 int state = 0; 
 
-int packetTime[2][10];
+int packetTime[10][2];
 int packetDepth[10];
 int packetCounter = 0;
 
@@ -261,6 +261,7 @@ void sendData() {
          TEAM_ID, packetTime[i][0], packetTime[i][1], packetDepth[i]);
 
     Serial.println(msg);
+    Serial.println(strlen(msg));
 
     rf95.send((uint8_t *)msg, strlen(msg));
     rf95.waitPacketSent();
