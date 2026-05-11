@@ -48,7 +48,7 @@ void setup() {
 
   Serial.begin(9600);
   while (!Serial) { }  // if using native USB boards
-  Serial.println("BOOT");
+  Serial.println("BOOT"); 
 
   // Radio:
 
@@ -176,7 +176,7 @@ float readPressure(){
 void savePacket() {
   packetTime[packetCounter][0] = rtc.getMinutes();
   packetTime[packetCounter][1] = rtc.getSeconds();
-  packetDepth[packetCounter] = readPressure();
+  packetDepth[packetCounter] = (int) readPressure();
   packetCounter++;
 }
 
@@ -241,7 +241,7 @@ void pump(int ms, bool in) {
 void sendData() {
   for (int i = 0; i < packetCounter; i++) {
     
-    char msg[18] = {0};
+    char msg[32] = {0};
     char packetStuff[3][8];
 
 
@@ -254,12 +254,13 @@ void sendData() {
     strcat(msg, ":");
     strcat(msg, packetStuff[1]);
     strcat(msg, "_");
-    strcat(msg, packetStuff[3]);
+    strcat(msg, packetStuff[2]);
 
     Serial.println(msg);
 
-    rf95.send((uint8_t *)msg, 17);
+    rf95.send((uint8_t *)msg, strlen(msg));
     rf95.waitPacketSent();
+    Serial.println("Sent packet")
     delay(300);
   }
 
