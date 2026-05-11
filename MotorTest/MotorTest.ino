@@ -2,34 +2,45 @@ int ENABLE = 2;
 int MotorA1 = 3;
 int MotorA2 = 5;
 
+String command = "STOP";
+
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(ENABLE, OUTPUT);
   pinMode(MotorA1, OUTPUT);
   pinMode(MotorA2, OUTPUT);
-  Serial.println("STARTING");
+  Serial.println("READY: type ADD, REMOVE, or STOP");
+}
 
+void setPump(const String &cmd) {
+  if (cmd == "ADD") {
+    digitalWrite(ENABLE, HIGH);
+    digitalWrite(MotorA1, LOW);
+    digitalWrite(MotorA2, HIGH);
+    Serial.println("ADD WATER");
+  } else if (cmd == "REMOVE") {
+    digitalWrite(ENABLE, HIGH);
+    digitalWrite(MotorA1, HIGH);
+    digitalWrite(MotorA2, LOW);
+    Serial.println("REMOVE WATER");
+  } else { // STOP or unknown
+    digitalWrite(ENABLE, LOW);
+    digitalWrite(MotorA1, LOW);
+    digitalWrite(MotorA2, LOW);
+    Serial.println("STOP");
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(ENABLE, HIGH);
-  digitalWrite(MotorA1, HIGH);
-  digitalWrite(MotorA2, LOW);
-  Serial.println("FORWARDS");
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    input.toUpperCase();
+    if (input.length() > 0) {
+      command = input;
+    }
+  }
 
-  delay(5000);
-
-  digitalWrite(ENABLE, HIGH);
-  digitalWrite(MotorA1, LOW);
-  digitalWrite(MotorA2, HIGH);
-  Serial.println("BACKWARDS");
-
-  delay(5000);
-
-  digitalWrite(ENABLE, LOW);
-  Serial.println("STOP");
-  delay(5000);
-
+  setPump(command);
+  delay(200); // small delay to avoid spamming Serial
 }
