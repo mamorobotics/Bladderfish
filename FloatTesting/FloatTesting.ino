@@ -52,15 +52,15 @@ void setup() {
   // put your setup code here, to run once:
   
 
-  Serial.begin(9600);
-  while (!Serial) { }  // if using native USB boards
-  Serial.println("BOOT"); 
+  // Serial.begin(9600);
+  // while (!Serial) { }  // if using native USB boards
+  // Serial.println("BOOT"); 
 
   // Radio:
 
  
   setupRadio();
-  Serial.println("Radio setup!");
+  // Serial.println("Radio setup!");
 
   // Motor:
 
@@ -75,7 +75,7 @@ void setup() {
   WiFiDrv::pinMode(26, OUTPUT); //define RED LED
   WiFiDrv::pinMode(27, OUTPUT); //define BLUE LED
 
-  Serial.println("Motor Setup");
+  // Serial.println("Motor Setup");
 
 
   // Clock:
@@ -86,7 +86,7 @@ void setup() {
   rtc.setMinutes(0);
   rtc.setSeconds(0);
 
-  Serial.println("Clock Setup");
+  // Serial.println("Clock Setup");
 
   // Pressure sensor: 
 
@@ -97,13 +97,14 @@ void setup() {
       delay(10);
     }
   }
-  Serial.println("Found MPRLS sensor");
+  // Serial.println("Found MPRLS sensor");
 
   if (good) {
     WiFiDrv::analogWrite(25, 255); //GREEN
     WiFiDrv::analogWrite(26, 0);   //RED
     WiFiDrv::analogWrite(27, 0);   //BLUE
   }
+
   else{
     WiFiDrv::analogWrite(25, 0); //GREEN
     WiFiDrv::analogWrite(26, 255);   //RED
@@ -127,7 +128,7 @@ void setupRadio() {
 
 
   while (!rf95.init()) {
-    Serial.println("LoRa radio init failed"); 
+    // Serial.println("LoRa radio init failed"); 
     good = false;
     while (1);
   }
@@ -136,11 +137,11 @@ void setupRadio() {
 
 
   if (!rf95.setFrequency(RF95_FREQ)) {
-    Serial.println("setFrequency failed");
+    // Serial.println("setFrequency failed");
     good = false;
     while (1);
   }
-  Serial.print("Set Freq to: "); Serial.println(RF95_FREQ);
+  // Serial.print("Set Freq to: "); Serial.println(RF95_FREQ);
   good = true;
   
   // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
@@ -162,11 +163,19 @@ void loop() {
   if (state == 1) {
     verticalProfile();
     state++;
-    Serial.println("Profile Done");
+    // Serial.println("Profile Done");
   }
   if (state == 2) {
-    Serial.println("Sending data");
+    // Serial.println("Sending data");
     sendData();
+    state = 0;
+  }
+  if (state == 3) {
+    fillNeutral();
+    state = 0;
+  }
+  if (state == 4) {
+    sendReplyPacket();
     state = 0;
   }
 }
@@ -178,16 +187,24 @@ void waitCommand() {
   if (rf95.waitAvailableTimeout(1000)) {
     if (rf95.recv(buf, &len))
     {
-      Serial.print("Recieved: ");
-      Serial.println((char*)buf);
+      // Serial.print("Recieved: ");
+      // Serial.println((char*)buf);
 
       if (strcmp((char*)buf, "start") == 0) {
         state = 1; // begin vertical profile
       }
+      if (strcmp((char*)buf, "fill") == 0) {
+        state = 3; // begin vertical profile
+      }
+      if (strcmp((char*)buf, "test") == 0) {
+        state = 4; // begin vertical profile
+      }
+
+      
 
 
-      Serial.print("RSSI: ");
-      Serial.println(rf95.lastRssi(), DEC);    
+      // Serial.print("RSSI: ");
+      // Serial.println(rf95.lastRssi(), DEC);    
     }
   }
 }
@@ -205,9 +222,32 @@ void savePacket() {
   packetCounter++;
 }
 
+
+void fillNeutral() {
+  pump(85000, true);
+  WiFiDrv::analogWrite(25, 0); //GREEN
+  WiFiDrv::analogWrite(26, 0);   //RED
+  WiFiDrv::analogWrite(27, 255);   //BLUE
+}
+
+void sendReplyPacket() {
+  char msg[64];
+    snprintf(msg, sizeof(msg), "TEST_%d:%d",
+        rtc.getMinutes();, rtc.getSeconds());
+
+    // Serial.println(msg);
+    // Serial.println(strlen(msg));
+
+    rf95.send((uint8_t *)msg, strlen(msg));
+    rf95.waitPacketSent();
+}
+
 void verticalProfile() {
   // fill the bladder
-  Serial.println("Vertical Profile Start");
+  // Serial.println("Vertical Profile Start");
+  WiFiDrv::analogWrite(25, 0); //GREEN
+  WiFiDrv::analogWrite(26, 255);   //RED
+  WiFiDrv::analogWrite(27, 0);   //BLUE
 
   pump(5000, true);
   savePacket();
@@ -222,7 +262,7 @@ void verticalProfile() {
   // neutral
 
   
-  Serial.println("Neutral");
+  // Serial.println("Neutral");
   pump(5000, false);
   savePacket();
   
@@ -235,7 +275,7 @@ void verticalProfile() {
   savePacket();
 
   // empty the bladder
-  Serial.println("Float");
+  // Serial.println("Float");
   pump(5000, false);
   savePacket();
 
@@ -285,12 +325,12 @@ void sendData() {
     snprintf(msg, sizeof(msg), "%s_%d:%d_%d",
          TEAM_ID, packetTime[i][0], packetTime[i][1], packetDepth[i]);
 
-    Serial.println(msg);
-    Serial.println(strlen(msg));
+    // Serial.println(msg);
+    // Serial.println(strlen(msg));
 
     rf95.send((uint8_t *)msg, strlen(msg));
     rf95.waitPacketSent();
-    Serial.println("Sent packet");
+    // Serial.println("Sent packet");
     delay(300);
   }
 
